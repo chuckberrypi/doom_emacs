@@ -45,6 +45,15 @@
        :desc "slurp" "s" #'sp-forward-slurp-sexp
        :desc "raise" "r" #'sp-raise-sexp))
 
+(use-package! org-transclusion
+	      :after org
+	      :init
+	      (map!
+		:map global-map "<f12>" #'org-transclusion-add
+		:leader 
+		:prefix "n"
+		:desc "Org Transclusion Mode" "t" #'org-transclusion-mode'))
+
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;

@@ -52,7 +52,7 @@
 		:map global-map "<f12>" #'org-transclusion-add
 		:leader 
 		:prefix "n"
-		:desc "Org Transclusion Mode" "t" #'org-transclusion-mode'))
+		:desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
 
 
 ;; Here are some additional functions/macros that could help you configure Doom:

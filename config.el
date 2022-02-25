@@ -37,6 +37,15 @@
 
 (setq org-roam-directory "~/org-roam")
 
+(setq org-agenda-files (quote ("/home/d_f_stearns/work-org/")))
+
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "PROJ(p)" "LOOP(r)" "STRT(s)" "WAIT(w!)" "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
+        (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+        (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
+
+(setq org-log-into-drawer t)
+
 (map! :leader
       (:prefix ("k" . "parens conveniens")
        :desc "kill sexp" "k" #'kill-sexp

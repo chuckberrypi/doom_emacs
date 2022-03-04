@@ -54,6 +54,9 @@
 		:prefix "n"
 		:desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
 
+(use-package! evil
+  :pre-init
+  (setq evil-respect-visual-line-mode t))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;

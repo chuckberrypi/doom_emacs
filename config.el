@@ -30,12 +30,27 @@
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
+(setq org-roam-directory "~/org-roam")
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
 
-(setq org-roam-directory "~/org-roam")
+(defun dfs-org-setup ()
+  (defun blarg () 1)
+  (progn
+
+    (setq org-agenda-files (quote ("~/work-org/" "~/org")))
+
+    (setq org-todo-keywords
+          '((sequence "TODO(t)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)" "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
+            (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+            (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
+
+    (setq org-log-into-drawer t)))
+
+(after! org
+  (dfs-org-setup))
 
 (map! :leader
       (:prefix ("k" . "parens conveniens")

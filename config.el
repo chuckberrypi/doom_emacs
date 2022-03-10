@@ -29,19 +29,18 @@
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/org/")
-(setq org-roam-directory "~/org-roam")
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
 
+(load! "dfs-org-setup.el")
+
 (defun dfs-org-setup ()
   (defun blarg () 1)
   (progn
-
+    (setq org-roam-directory "~/org-roam")
     (setq org-agenda-files (quote ("~/work-org/" "~/org")))
-
     (setq org-todo-keywords
           '((sequence "TODO(t)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)" "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
             (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
@@ -69,9 +68,12 @@
 		:prefix "n"
 		:desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
 
-(use-package! evil
-  :pre-init
-  (setq evil-respect-visual-line-mode t))
+;;(use-package! evil
+;;  :pre-init
+;;  (setq evil-respect-visual-line-mode t))
+
+(after! evil
+	(setq evil-respect-visual-line-mode t))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;

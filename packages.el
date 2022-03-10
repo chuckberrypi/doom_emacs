@@ -15,6 +15,7 @@
 (package! pdf-tools)
 (package! smerge-mode)
 (package! org-transclusion)
+;(package! org-gantt)
 (package! yasnippet)
 	  
 

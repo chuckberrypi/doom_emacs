@@ -34,22 +34,28 @@
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
 
-(load! "dfs-org-setup.el")
+;;(load! "dfs-org-setup.el")
 
 (defun dfs-org-setup ()
-  (defun blarg () 1)
   (progn
-    (setq org-roam-directory "~/org-roam")
-    (setq org-agenda-files (quote ("~/work-org/" "~/org")))
     (setq org-todo-keywords
           '((sequence "TODO(t)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)" "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
             (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
             (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
-
     (setq org-log-into-drawer t)))
 
-(after! org
-  (dfs-org-setup))
+(defun dfs-org-agenda-setup ()
+    (progn
+      (setq org-agenda-files '("~/work_org" "~/org"))))
+
+
+(add-hook 'org-agenda-mode-hook #'dfs-org-setup)
+
+(use-package! org
+  :init (progn
+          (setq org-roam-directory "~/org-roam")
+          (setq org-directory "~/org"))
+  :after (dfs-org-setup))
 
 (map! :leader
       (:prefix ("k" . "parens conveniens")
@@ -70,7 +76,7 @@
 
 
 (after! evil
-	(setq evil-respect-visual-line-mode t))
+  (setq evil-respect-visual-line-mode t))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;

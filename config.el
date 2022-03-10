@@ -38,6 +38,7 @@
 
 (defun dfs-org-setup ()
   (progn
+    (setq org-agenda-files '("~/work_org" "~/org"))
     (setq org-todo-keywords
           '((sequence "TODO(t)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)" "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
             (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
@@ -49,18 +50,20 @@
       (setq org-agenda-files '("~/work_org" "~/org"))))
 
 
-;;(add-hook 'org-agenda-mode-hook #'dfs-org-setup)
+(add-hook 'org-agenda-mode-hook #'dfs-org-setup)
+(add-hook 'org-mode-hook #'dfs-org-setup)
 
-(after! org-agenda
-	(progn 
-	  (dfs-org-agenda-setup)
-	  (org-agenda-redo)))
+;(after! org-agenda
+;	(progn 
+;	  (dfs-org-agenda-setup)
+;	  (org-agenda-redo)))
 
 (use-package! org
   :init (progn
           (setq org-roam-directory "~/org-roam")
           (setq org-directory "~/org"))
-  :after (dfs-org-setup))
+  ;:after (dfs-org-setup)
+  )
 
 (map! :leader
       (:prefix ("k" . "parens conveniens")

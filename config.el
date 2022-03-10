@@ -49,7 +49,12 @@
       (setq org-agenda-files '("~/work_org" "~/org"))))
 
 
-(add-hook 'org-agenda-mode-hook #'dfs-org-setup)
+;;(add-hook 'org-agenda-mode-hook #'dfs-org-setup)
+
+(after! org-agenda
+	(progn 
+	  (dfs-org-agenda-setup)
+	  (org-agenda-redo)))
 
 (use-package! org
   :init (progn

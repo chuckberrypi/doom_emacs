@@ -68,9 +68,6 @@
 		:prefix "n"
 		:desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
 
-;;(use-package! evil
-;;  :pre-init
-;;  (setq evil-respect-visual-line-mode t))
 
 (after! evil
 	(setq evil-respect-visual-line-mode t))

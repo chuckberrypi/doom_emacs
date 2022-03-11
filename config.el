@@ -36,33 +36,46 @@
 
 ;;(load! "dfs-org-setup.el")
 
+(require 'org-id)
+(require 'org-expiry)
+(defun dfs-insert-created-timestamp (_)
+  "Insert a 'Created' property for every todo that is created"
+  (org-expiry-insert-created)
+  (org-back-to-heading)
+  (org-end-of-line)
+  ;; (insert " ")
+  (evil-insert 1)
+  )
+
+(defun dfs-insert-id (_)
+  "Insert a 'Created' property for every todo that is created"
+  (org-id-get-create)
+  (org-back-to-heading)
+  (org-end-of-line)
+  ;; (insert " ")
+  (evil-insert 1))
+
 (defun dfs-org-setup ()
-  (progn
-    (setq org-agenda-files '("~/work_org" "~/org"))
-    (setq org-todo-keywords
-          '((sequence "TODO(t)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)" "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
-            (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
-            (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
-    (setq org-log-into-drawer t)))
-
-(defun dfs-org-agenda-setup ()
-    (progn
-      (setq org-agenda-files '("~/work_org" "~/org"))))
-
+  (require 'org-id)
+  (require 'org-expiry)
+  (advice-add 'org-insert-todo-heading :after #'dfs-insert-created-timestamp)
+  (advice-add 'org-insert-todo-heading :after #'dfs-insert-id)
+  (setq org-agenda-files '("~/work_org" "~/org"))
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)" "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
+          (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+          (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
+  (setq org-log-into-drawer t)
+  (setq org-agenda-follow-mode t))
 
 (add-hook 'org-agenda-mode-hook #'dfs-org-setup)
 (add-hook 'org-mode-hook #'dfs-org-setup)
 
-;(after! org-agenda
-;	(progn 
-;	  (dfs-org-agenda-setup)
-;	  (org-agenda-redo)))
 
 (use-package! org
   :init (progn
           (setq org-roam-directory "~/org-roam")
           (setq org-directory "~/org"))
-  ;:after (dfs-org-setup)
   )
 
 (map! :leader
@@ -81,7 +94,6 @@
 		:leader 
 		:prefix "n"
 		:desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
-
 
 (after! evil
   (setq evil-respect-visual-line-mode t))

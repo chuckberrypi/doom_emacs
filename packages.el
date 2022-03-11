@@ -15,8 +15,8 @@
 (package! pdf-tools)
 (package! smerge-mode)
 (package! org-transclusion)
-;(package! org-gantt)
 (package! yasnippet)
+(package! org-super-agenda)
 	  
 
 ;; To install a package directly from a remote git repo, you must specify a

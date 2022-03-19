@@ -38,21 +38,19 @@
 
 (require 'org-id)
 (require 'org-expiry)
+
 (defun dfs-insert-created-timestamp (_)
   "Insert a 'Created' property for every todo that is created"
   (org-expiry-insert-created)
   (org-back-to-heading)
   (org-end-of-line)
-  ;; (insert " ")
-  (evil-insert 1)
-  )
+  (evil-insert 1))
 
 (defun dfs-insert-id (_)
   "Insert a 'Created' property for every todo that is created"
   (org-id-get-create)
   (org-back-to-heading)
   (org-end-of-line)
-  ;; (insert " ")
   (evil-insert 1))
 
 (defun dfs-org-setup ()
@@ -66,17 +64,16 @@
           (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
           (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
   (setq org-log-into-drawer t)
-  (setq org-agenda-follow-mode t))
+  (setq org-agenda-follow-mode t)
+  (org-bullets-mode 1))
 
 (add-hook 'org-agenda-mode-hook #'dfs-org-setup)
 (add-hook 'org-mode-hook #'dfs-org-setup)
 
-
 (use-package! org
   :init (progn
           (setq org-roam-directory "~/org-roam")
-          (setq org-directory "~/org"))
-  )
+          (setq org-directory "~/org")))
 
 (map! :leader
       (:prefix ("k" . "parens conveniens")

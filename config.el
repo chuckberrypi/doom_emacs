@@ -38,7 +38,6 @@
 
 (defun dfs/insert-created-timestamp (_)
   "Insert a 'Created' property for every todo that is created"
-  ;; (require 'org-expiry)
   (org-expiry-insert-created)
   (org-back-to-heading)
   (org-end-of-line)
@@ -46,12 +45,15 @@
 
 (defun dfs/insert-id (_)
   "Insert an 'ID' property for every todo that is created"
-  ;; (require 'org-id)
   (org-id-get-create)
   (org-back-to-heading)
   (org-end-of-line)
   (evil-insert 1))
 
+(after! org
+  (progn
+    (require 'org-expiry)
+    (require 'org-id)))
 
 (defun dfs/org-setup ()
   (require 'org-id)

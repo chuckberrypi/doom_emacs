@@ -69,7 +69,12 @@
           (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
   (setq org-log-into-drawer t)
   (setq org-agenda-follow-mode t)
-  (org-bullets-mode 1))
+  (org-bullets-mode 1)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (sqlite . t)
+     )))
 
 (add-hook 'org-agenda-mode-hook #'dfs/org-setup)
 (add-hook 'org-mode-hook #'dfs/org-setup)
@@ -96,8 +101,6 @@
 		:prefix "n"
 		:desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
 
-(after! evil
-  (setq evil-respect-visual-line-mode t))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;

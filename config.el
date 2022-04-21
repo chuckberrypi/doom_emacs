@@ -36,7 +36,10 @@
 
 ;;(load! "dfs/org-setup.el")
 
-(defun dfs/insert-created-timestamp (_)
+(require 'org-id)
+(require 'org-expiry)
+
+(defun dfs-insert-created-timestamp (_)
   "Insert a 'Created' property for every todo that is created"
   (org-expiry-insert-created)
   (org-back-to-heading)
@@ -67,17 +70,21 @@
           (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
           (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
   (setq org-log-into-drawer t)
-  (setq org-agenda-follow-mode t))
+  (setq org-agenda-follow-mode t)
+  (org-bullets-mode 1)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (sqlite . t)
+     )))
 
 (add-hook 'org-agenda-mode-hook #'dfs/org-setup)
 (add-hook 'org-mode-hook #'dfs/org-setup)
 
-
 (use-package! org
   :init (progn
           (setq org-roam-directory "~/org-roam")
-          (setq org-directory "~/org"))
-  )
+          (setq org-directory "~/org")))
 
 (map! :leader
       (:prefix ("k" . "parens conveniens")
@@ -96,8 +103,6 @@
 		:prefix "n"
 		:desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
 
-(after! evil
-  (setq evil-respect-visual-line-mode t))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;

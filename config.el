@@ -34,73 +34,28 @@
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
 
-;;(load! "dfs/org-setup.el")
+(load! "dfs-org-setup.el")
+(load! "dfs-text.el")
 
-(require 'org-id)
-(require 'org-expiry)
+(map! :leader (:prefix ("k" . "parens conveniens")
+               :desc "kill sexp" "k" #'kill-sexp
+               :desc "wrap sexp" "w" #'sp-wrap-round
+               :desc "barf" "b" #'sp-forward-barf-sexp
+               :desc "slurp" "s" #'sp-forward-slurp-sexp
+               :desc "raise" "r" #'sp-raise-sexp)
+      :g "s-j" #'dfs/bump-down)
 
-(defun dfs-insert-created-timestamp (_)
-  "Insert a 'Created' property for every todo that is created"
-  ;; (require 'org-expiry)
-  (org-expiry-insert-created)
-  (org-back-to-heading)
-  (org-end-of-line)
-  (evil-insert 1))
-
-(defun dfs/insert-id (_)
-  "Insert an 'ID' property for every todo that is created"
-  ;; (require 'org-id)
-  (org-id-get-create)
-  (org-back-to-heading)
-  (org-end-of-line)
-  (evil-insert 1))
-
-
-(defun dfs/org-setup ()
-  (require 'org-id)
-  (require 'org-expiry)
-  (advice-add 'org-insert-todo-heading :after #'dfs/insert-created-timestamp)
-  (advice-add 'org-insert-todo-heading :after #'dfs/insert-id)
-  (setq org-agenda-files '("~/work_org" "~/org"))
-  (setq org-treat-insert-todo-heading-as-state-change t)
-  (setq org-todo-keywords
-        '((sequence "TODO(t!)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)" "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
-          (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
-          (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
-  (setq org-log-into-drawer t)
-  (setq org-agenda-follow-mode t)
-  (org-bullets-mode 1)
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (sqlite . t)
-     )))
-
-(add-hook 'org-agenda-mode-hook #'dfs/org-setup)
-(add-hook 'org-mode-hook #'dfs/org-setup)
-
-(use-package! org
-  :init (progn
-          (setq org-roam-directory "~/org-roam")
-          (setq org-directory "~/org")))
-
-(map! :leader
-      (:prefix ("k" . "parens conveniens")
-       :desc "kill sexp" "k" #'kill-sexp
-       :desc "wrap sexp" "w" #'sp-wrap-round
-       :desc "barf" "b" #'sp-forward-barf-sexp
-       :desc "slurp" "s" #'sp-forward-slurp-sexp
-       :desc "raise" "r" #'sp-raise-sexp))
+(map! "s-k" #'dfs/bump-line-up
+      "s-j" #'dfs/bump-line-down)
 
 (use-package! org-transclusion
-	      :after org
-	      :init
-	      (map!
-		:map global-map "<f12>" #'org-transclusion-add
-		:leader 
-		:prefix "n"
-		:desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
-
+  :after org
+  :init
+  (map!
+   :map global-map "<f12>" #'org-transclusion-add
+   :leader
+   :prefix "n"
+   :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;

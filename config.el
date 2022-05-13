@@ -34,6 +34,8 @@
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
 
+(require 'ox-json)
+
 (load! "dfs-org-setup.el")
 (load! "dfs-text.el")
 
@@ -42,8 +44,7 @@
                :desc "wrap sexp" "w" #'sp-wrap-round
                :desc "barf" "b" #'sp-forward-barf-sexp
                :desc "slurp" "s" #'sp-forward-slurp-sexp
-               :desc "raise" "r" #'sp-raise-sexp)
-      :g "s-j" #'dfs/bump-down)
+               :desc "raise" "r" #'sp-raise-sexp))
 
 (map! "s-k" #'dfs/bump-line-up
       "s-j" #'dfs/bump-line-down)

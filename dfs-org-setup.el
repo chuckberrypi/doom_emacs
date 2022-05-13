@@ -39,6 +39,7 @@
   )
 
 (after! org
+  (dfs/org-setup)
   (setq org-capture-templates
         (append
          '(("w" "Chuck Walk" table-line
@@ -53,3 +54,41 @@
   :init (progn
           (setq org-roam-directory "~/org-roam")
           (setq org-directory "~/org")))
+
+(defun dfs/agenda-file-names ()
+  (->> org-agenda-files
+       (-map #'dfs/file-or-dir-files)
+       -flatten
+       (-filter (lambda (x) x))
+       (-remove (lambda (s) (string-match-p "/\.git" s)))
+       ))
+
+(defun dfs/file-or-dir-files (name)
+  (if (file-directory-p name)
+      (directory-files-recursively name ".*\.org")
+      (if (and (file-exists-p name)
+               (string-match-p ".*\.org" name))
+          name
+          nil)))
+
+(defun dfs/org-file-to-elements (name)
+  (with-temp-buffer
+    (insert-file-contents name)
+    (org-element-parse-buffer)))
+
+(defun dfs/org-file-to-json (name)
+  (with-temp-buffer
+    (insert-file-contents name)
+    (ox-json-export-to-buffer))
+  (with-current-buffer "*Org JSON Export*"
+    (let  ((s (buffer-string)))
+      (erase-buffer)
+      (kill-buffer-and-window)
+      s)))
+
+(defun dfs/org-agenda-files-json ()
+  (->> (dfs/agenda-file-names)
+       (mapcar #'dfs/org-file-to-json)
+       vconcat
+       json-serialize))
+

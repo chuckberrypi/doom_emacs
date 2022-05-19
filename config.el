@@ -29,31 +29,34 @@
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/org/")
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
 
-(setq org-roam-directory "~/org-roam")
+(require 'ox-json)
 
-(map! :leader
-      (:prefix ("k" . "parens conveniens")
-       :desc "kill sexp" "k" #'kill-sexp
-       :desc "wrap sexp" "w" #'sp-wrap-round
-       :desc "barf" "b" #'sp-forward-barf-sexp
-       :desc "slurp" "s" #'sp-forward-slurp-sexp
-       :desc "raise" "r" #'sp-raise-sexp))
+(load! "dfs-org-setup.el")
+(load! "dfs-text.el")
+
+(map! :leader (:prefix ("k" . "parens conveniens")
+               :desc "kill sexp" "k" #'kill-sexp
+               :desc "wrap sexp" "w" #'sp-wrap-round
+               :desc "barf" "b" #'sp-forward-barf-sexp
+               :desc "slurp" "s" #'sp-forward-slurp-sexp
+               :desc "raise" "r" #'sp-raise-sexp))
+
+(map! "s-k" #'dfs/bump-line-up
+      "s-j" #'dfs/bump-line-down)
 
 (use-package! org-transclusion
-	      :after org
-	      :init
-	      (map!
-		:map global-map "<f12>" #'org-transclusion-add
-		:leader 
-		:prefix "n"
-		:desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
-
+  :after org
+  :init
+  (map!
+   :map global-map "<f12>" #'org-transclusion-add
+   :leader
+   :prefix "n"
+   :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;

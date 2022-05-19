@@ -44,7 +44,10 @@
         (append
          '(("w" "Chuck Walk" table-line
             (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
-            "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |"))
+            "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
+           ("b" "Best" entry
+            (file+headline "~/org/scratch.org" "Heading 1.1")
+            "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")"))
          org-capture-templates)))
 
 (add-hook 'org-agenda-mode-hook #'dfs/org-setup)
@@ -66,10 +69,10 @@
 (defun dfs/file-or-dir-files (name)
   (if (file-directory-p name)
       (directory-files-recursively name ".*\.org")
-      (if (and (file-exists-p name)
-               (string-match-p ".*\.org" name))
-          name
-          nil)))
+    (if (and (file-exists-p name)
+             (string-match-p ".*\.org" name))
+        name
+      nil)))
 
 (defun dfs/org-file-to-elements (name)
   (with-temp-buffer
@@ -92,3 +95,59 @@
        vconcat
        json-serialize))
 
+(defun dfs/org-agenda-file-names-json ()
+  (->> (dfs/agenda-file-names)
+       vconcat
+       json-serialize))
+
+;; (insert (dfs/org-agenda-file-names-json))
+
+(defun dfs/apply-concat (list-of-lists)
+  (-reduce-from (lambda (acc v)
+                  (append acc v))
+                '()
+                list-of-lists))
+
+(defun dfs/org-elements-of-type (tree type)
+  (org-element-map tree type #'identity))
+
+(defun dfs/org-get-table-by-name (name)
+  (->> (dfs/org-elements-of-type (org-element-parse-buffer) 'table)
+       (-filter (lambda (table) (equal name (org-element-property :name table))))
+       car))
+
+(defun dfs/vec->list (vec)
+  (append vec '()))
+
+(defun dfs/row-coords->fields (row-coord)
+  "must be in the table"
+  (-map (lambda (coord)
+          (let ((r (elt coord 0))
+               (c (elt coord 1)))
+           (org-table-get r c))) row-coord))
+
+(defun dfs/org-table-fields ()
+  (->> org-table-dlines
+       dfs/vec->list
+       (-filter #'identity)
+       (-map-indexed (lambda (index el) (+ 1 index)))
+       (-map (lambda (r)
+               (let ((c org-table-current-ncol)
+                     (ret '()))
+                 (while (< 0 c)
+                   (setq ret (cons (list r c) ret))
+                   (setq c (- c 1)))
+                 ret)))
+       (-map #'dfs/row-coords->fields)
+       ) )
+
+(defun dfs/org-table-by-name->values (name)
+ (save-excursion
+  (let* ((tbl (dfs/org-get-table-by-name name))
+         (start (org-element-property :begin tbl)))
+    (goto-char (+ 1 start))
+    (org-table-analyze)
+    (dfs/org-table-fields)
+    )))
+
+(quote (completing-read "Edit: " '(("a" 3) ("b" 8) ("c" 10))))

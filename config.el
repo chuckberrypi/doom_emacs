@@ -56,9 +56,14 @@
 (after! org
   (progn
     (require 'org-expiry)
-    (require 'org-id)))
+    (require 'org-id)
+    (add-to-list 'org-capture-templates
+                 '(("w" "Chuck Walk" table-line
+                    (file+headline "SummitPS.org" "Table")
+                    "|%t|%^{time|morning|noon|evening}|%^{energy}|%^{poop}")))))
 
 (defun dfs/org-setup ()
+  (setq org-capture-templates '())
   (require 'org-id)
   (require 'org-expiry)
   (advice-add 'org-insert-todo-heading :after #'dfs/insert-created-timestamp)

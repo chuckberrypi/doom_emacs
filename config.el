@@ -4,59 +4,31 @@
 ;; sync' after modifying this file!
 
 
-;; Some functionality uses this to identify you, e.g. GPG configuration, email
-;; clients, file templates and snippets.
-(setq user-full-name "David Stearns"
-      user-mail-address "d.f.stearns@gmail.com")
-
-;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
-;; are the three important ones:
-;;
-;; + `doom-font'
-;; + `doom-variable-pitch-font'
-;; + `doom-big-font' -- used for `doom-big-font-mode'; use this for
-;;   presentations or streaming.
-;;
-;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
-;; font string. You generally only need these two:
-;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
-;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
-
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-one)
-
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 
-;; This determines the style of line numbers in effect. If set to `nil', line
-;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type t)
 
-(require 'ox-json)
+;; Load Org File. Source: https://github.com/angrybacon/dotemacs/blob/master/init.el
+(let ((default-directory doom-private-dir)
+      (file-name-handler-alist nil)
+      (gc-cons-percentage .6)
+      (gc-cons-threshold most-positive-fixnum)
+      (read-process-output-max (* 1024 1024)))
 
-(load! "dfs-org-setup.el")
-(load! "dfs-text.el")
+  (let* ((o-file "doom-config.org")
+         (el-file (concat (file-name-sans-extension o-file) ".el"))
+         (mod-time (file-attribute-modification-time (file-attributes o-file))))
+    (require 'org-macs)
+    (unless (org-file-newer-than-p el-file mod-time)
+      (require 'ob-tangle)
+      (org-babel-tangle-file o-file el-file "emacs-lisp"))
+    (load! el-file)))
 
-(map! :leader (:prefix ("k" . "parens conveniens")
-               :desc "kill sexp" "k" #'kill-sexp
-               :desc "wrap sexp" "w" #'sp-wrap-round
-               :desc "barf" "b" #'sp-forward-barf-sexp
-               :desc "slurp" "s" #'sp-forward-slurp-sexp
-               :desc "raise" "r" #'sp-raise-sexp))
+;; (load! "dfs-org-setup.el")
 
-(map! "s-k" #'dfs/bump-line-up
-      "s-j" #'dfs/bump-line-down)
 
-(use-package! org-transclusion
-  :after org
-  :init
-  (map!
-   :map global-map "<f12>" #'org-transclusion-add
-   :leader
-   :prefix "n"
-   :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
+
+
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;

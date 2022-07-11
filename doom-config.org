@@ -1,27 +1,13 @@
 #+TITLE: Doom Config
 
-* KEY BINDINGS
-
-    #+begin_src emacs-lisp
-        (map! :leader (:prefix ("k" . "parens conveniens")
-                       :desc "kill sexp" "k" #'kill-sexp
-                       :desc "wrap sexp" "w" #'sp-wrap-round
-                       :desc "barf" "b" #'sp-forward-barf-sexp
-                       :desc "slurp" "s" #'sp-forward-slurp-sexp
-                       :desc "raise" "r" #'sp-raise-sexp))
-
-        (map! "s-k" #'dfs/bump-line-up
-              "s-j" #'dfs/bump-line-down)
-    #+end_src
-
 * DOOM TEMPLATE
 
 Some functionality uses this to identify you, e.g. GPG configuration, email
 clients, file templates and snippets.
 
-#+begin_src emacs-lisp
-    (setq user-full-name "David Stearns"
-          user-mail-address "d.f.stearns@gmail.com")
+#+begin_src emacs-lisp :tangle yes
+(setq user-full-name "David Stearns"
+      user-mail-address "d.f.stearns@gmail.com")
 #+end_src
 
 Doom exposes five (optional) variables for controlling fonts in Doom. Here
@@ -35,26 +21,25 @@ are the three important ones:
 They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 font string. You generally only need these two:
 
-#+begin_src emacs-lisp
-(setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
-      doom-variable-pitch-font (font-spec :family "sans" :size 13))
-#+end_src
+vvvv the following code fucks things up
+;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
+;;      doom-variable-pitch-font (font-spec :family "sans" :size 13))
 
 There are two ways to load a theme. Both assume the theme is installed and
 available. You can either set `doom-theme' or manually load a theme with the
 `load-theme' function. This is the default:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
 (setq doom-theme 'doom-one)
 #+end_src
 
 This determines the style of line numbers in effect. If set to `nil', line
 numbers are disabled. For relative line numbers, set this to `relative'.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
 (setq display-line-numbers-type t)
 #+end_src
 * PACKAGE CONFIGURATIONS
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
 (use-package! org-transclusion
   :after org
   :init
@@ -64,9 +49,10 @@ numbers are disabled. For relative line numbers, set this to `relative'.
    :prefix "n"
    :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
 #+end_src
+[[file:~/org/thingle.org][thingledesc]]
 * CUSTOM FUNCS
 ** Text Funcs
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
 (defun dfs/bump-line-up ()
   (interactive)
   (let ((cur-pos-line (- (point) (line-beginning-position)))
@@ -91,70 +77,120 @@ numbers are disabled. For relative line numbers, set this to `relative'.
     (forward-line -1)
     (forward-char cur-pos-line)))
 #+end_src
+** Utility Funcs
+#+begin_src emacs-lisp :tangle yes
+
+(defun dfs/org-new-linked-file ()
+  (interactive)
+  )
+
+(defun dfs/range (mx &optional mn st)
+  "provides a range of numbers from 0 (or mn) up to mx by st (1)"
+  (let* ((l nil)
+         (mini (or mn 0))
+         (step (or st 1))
+         (mximum (max mx mini))
+         (mnimum (min mx mini)))
+    (while (< mnimum mximum)
+      (setq l (cons mnimum l))
+      (setq mnimum (+ mnimum step)))
+    (reverse l)))
+
+#+end_src
+
 * ORG
 ** SETUP
-#+begin_src emacs-lisp
+*** Org Capture Templates
+#+begin_src emacs-lisp :tangle yes
+(setq dfs/org-capture-templates
+ '(("w" "Chuck Walk" table-line
+                (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
+                "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
+   ("b" "Best" entry (file+headline "~/org/scratch.org" "Heading 1.1")
+                "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")")
+   ("d" "Prot" entry (file+headline "~/org/scratch.org" "From_Protocol")
+               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?")
+   ("L" "P Link" entry (file+headline "~/org/scratch.org" "From_porot_link")
+               "** %? [[%:link][%:description]] \nCaptured On: %U")
+   ))
+
+#+end_src
+
+*** Org Todo Keywords
+#+begin_src emacs-lisp :tangle yes
+(setq dfs/org-keywords
+  '((sequence "TODO(t!)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)"
+              "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
+    (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+    (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
+
+#+end_src
+*** Org protocol
+#+begin_src emacs-lisp :tangle yes
+(setq dfs/org-protocol-capture-templates
+      '(("e" "Email Capture" entry (id "89f73e32-77ec-4052-94aa-22753c0c5a27")
+         "** EMAIL harharhar %U"
+         :immediate-finish t)))
+#+end_src
+
+*** Todo Setup Funcs
+#+begin_src emacs-lisp :tangle yes
+(require 'org-id)
+(require 'org-expiry)
+
+(defun dfs-insert-created-timestamp (_)
+  "Insert a 'Created' property for every todo that is created"
+  (org-expiry-insert-created)
+  (org-back-to-heading)
+  (org-end-of-line)
+  (evil-insert 1))
+
+(defun dfs/insert-id (_)
+  "Insert an 'ID' property for every todo that is created"
+  (org-id-get-create)
+  (org-back-to-heading)
+  (org-end-of-line)
+  (evil-insert 1))
+
+
+(defun dfs/org-setup ()
     (require 'org-id)
     (require 'org-expiry)
+    (advice-add 'org-insert-todo-heading :after #'dfs/insert-created-timestamp)
+    (advice-add 'org-insert-todo-heading :after #'dfs/insert-id)
 
-    (defun dfs-insert-created-timestamp (_)
-        "Insert a 'Created' property for every todo that is created"
-        (org-expiry-insert-created)
-        (org-back-to-heading)
-        (org-end-of-line)
-        (evil-insert 1))
+    (setq org-treat-insert-todo-heading-as-state-change t)
+    (setq org-agenda-files '("~/work_org" "~/org"))
+    (setq org-todo-keywords dfs/org-keywords)
 
-    (defun dfs/insert-id (_)
-        "Insert an 'ID' property for every todo that is created"
-        (org-id-get-create)
-        (org-back-to-heading)
-        (org-end-of-line)
-        (evil-insert 1))
+    (setq org-capture-templates
+            (append
+             dfs/org-capture-templates
+             org-capture-templates
+             dfs/org-protocol-capture-templates))
 
-    (defun dfs/org-setup ()
-        (require 'org-id)
-        (require 'org-expiry)
-        (advice-add 'org-insert-todo-heading :after #'dfs/insert-created-timestamp)
-        (advice-add 'org-insert-todo-heading :after #'dfs/insert-id)
-        (setq org-treat-insert-todo-heading-as-state-change t)
-        (setq org-agenda-files '("~/work_org" "~/org"))
-        (setq org-todo-keywords
-                '((sequence "TODO(t!)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)" "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
-                (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
-                (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
-        (setq org-capture-templates
-                (append
-                '(("w" "Chuck Walk" table-line
-                    (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
-                    "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
-                  ("b" "Best" entry
-                    (file+headline "~/org/scratch.org" "Heading 1.1")
-                    "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")"))
-                org-capture-templates))
-        (setq org-log-into-drawer t)
-        (setq org-agenda-follow-mode t)
-        (setq org-roam-directory "~/org-roam")
-        (setq org-directory "~/org")
-        (org-bullets-mode 1)
-        (org-babel-do-load-languages
-        'org-babel-load-languages
-        '((emacs-lisp . t)
-          (sqlite . t))))
+    (setq org-log-into-drawer t)
+    (setq org-agenda-follow-mode t)
+    (setq org-roam-directory "~/org-roam")
+    (setq org-directory "~/org")
+    (org-bullets-mode 1)
+    (org-babel-do-load-languages 'org-babel-load-languages
+                                '((emacs-lisp . t)
+                                (sqlite . t))))
 
-    (after! org
-        (dfs/org-setup))
+(after! org
+  (dfs/org-setup))
 
-    (add-hook 'org-agenda-mode-hook #'dfs/org-setup)
-    (add-hook 'org-mode-hook #'dfs/org-setup)
+;; (add-hook 'org-agenda-mode-hook #'dfs/org-setup)
+;; (add-hook 'org-mode-hook #'dfs/org-setup)
 
 #+end_src
 
 #+RESULTS:
-| (closure ((hook . org-mode-hook) (--dolist-tail--) t) (&rest _) (add-hook 'before-save-hook 'org-encrypt-entries nil t)) | doom--setq-emojify-inhibit-functions-for-org-mode-h | (closure ((hook . org-mode-hook) (--dolist-tail--) t) (&rest _) (add-hook 'before-save-hook 'org-encrypt-entries nil t)) | er/add-org-mode-expansions | dfs/org-setup | +lookup--init-org-mode-handlers-h | (closure ((hook . org-mode-hook) (--dolist-tail--) t) (&rest _) (add-hook 'before-save-hook 'org-encrypt-entries nil t)) | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | doom-disable-show-paren-mode-h | doom-disable-show-trailing-whitespace-h | +org-enable-auto-reformat-tables-h | +org-enable-auto-update-cookies-h | +org-make-last-point-visible-h | evil-org-mode | toc-org-enable | embrace-org-mode-hook | org-eldoc-load |
 
 ** EXPOSE FUNCS
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
     (require 'ox-json)
 
     (defun dfs/agenda-file-names ()
@@ -162,16 +198,15 @@ numbers are disabled. For relative line numbers, set this to `relative'.
             (-map #'dfs/file-or-dir-files)
             -flatten
             (-filter (lambda (x) x))
-            (-remove (lambda (s) (string-match-p "/\.git" s)))
-            ))
+            (-remove (lambda (s) (string-match-p "/\.git" s)))))
 
     (defun dfs/file-or-dir-files (name)
         (if (file-directory-p name)
             (directory-files-recursively name ".*\.org")
             (if (and (file-exists-p name)
-                    (string-match-p ".*\.org" name))
-                name
-            nil)))
+                     (string-match-p ".*\.org" name))
+              name
+              nil)))
 
     (defun dfs/org-file-to-elements (name)
         (with-temp-buffer
@@ -203,7 +238,7 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 
 ** TODO ORG EXHIBIT/TERMS TRACKER
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
     (defun dfs/apply-concat (list-of-lists)
         (-reduce-from (lambda (acc v)
                         (append acc v))
@@ -249,4 +284,17 @@ numbers are disabled. For relative line numbers, set this to `relative'.
             (goto-char (+ 1 start))
             (org-table-analyze)
             (dfs/org-table-fields))))
+#+end_src
+
+* KEY BINDINGS
+#+begin_src emacs-lisp :tangle yes
+(map! :leader (:prefix ("k" . "parens conveniens")
+                :desc "kill sexp" "k" #'kill-sexp
+                :desc "wrap sexp" "w" #'sp-wrap-round
+                :desc "barf" "b" #'sp-forward-barf-sexp
+                :desc "slurp" "s" #'sp-forward-slurp-sexp
+                :desc "raise" "r" #'sp-raise-sexp))
+
+(map! "s-k" #'dfs/bump-line-up
+      "s-j" #'dfs/bump-line-down)
 #+end_src

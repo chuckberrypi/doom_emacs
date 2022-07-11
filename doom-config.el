@@ -1,18 +1,5 @@
-        (map! :leader (:prefix ("k" . "parens conveniens")
-                       :desc "kill sexp" "k" #'kill-sexp
-                       :desc "wrap sexp" "w" #'sp-wrap-round
-                       :desc "barf" "b" #'sp-forward-barf-sexp
-                       :desc "slurp" "s" #'sp-forward-slurp-sexp
-                       :desc "raise" "r" #'sp-raise-sexp))
-
-        (map! "s-k" #'dfs/bump-line-up
-              "s-j" #'dfs/bump-line-down)
-
-    (setq user-full-name "David Stearns"
-          user-mail-address "d.f.stearns@gmail.com")
-
-(setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
-      doom-variable-pitch-font (font-spec :family "sans" :size 13))
+(setq user-full-name "David Stearns"
+      user-mail-address "d.f.stearns@gmail.com")
 
 (setq doom-theme 'doom-one)
 
@@ -51,58 +38,93 @@
     (forward-line -1)
     (forward-char cur-pos-line)))
 
+(defun dfs/org-new-linked-file ()
+  (interactive)
+  )
+
+(defun dfs/range (mx &optional mn st)
+  "provides a range of numbers from 0 (or mn) up to mx by st (1)"
+  (let* ((l nil)
+         (mini (or mn 0))
+         (step (or st 1))
+         (mximum (max mx mini))
+         (mnimum (min mx mini)))
+    (while (< mnimum mximum)
+      (setq l (cons mnimum l))
+      (setq mnimum (+ mnimum step)))
+    (reverse l)))
+
+(setq dfs/org-capture-templates
+ '(("w" "Chuck Walk" table-line
+                (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
+                "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
+   ("b" "Best" entry (file+headline "~/org/scratch.org" "Heading 1.1")
+                "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")")
+   ("d" "Prot" entry (file+headline "~/org/scratch.org" "From_Protocol")
+               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?")
+   ("L" "P Link" entry (file+headline "~/org/scratch.org" "From_porot_link")
+               "** %? [[%:link][%:description]] \nCaptured On: %U")
+   ))
+
+(setq dfs/org-keywords
+  '((sequence "TODO(t!)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)"
+              "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
+    (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+    (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
+
+(setq dfs/org-protocol-capture-templates
+      '(("e" "Email Capture" entry (id "89f73e32-77ec-4052-94aa-22753c0c5a27")
+         "** EMAIL harharhar %U"
+         :immediate-finish t)))
+
+(require 'org-id)
+(require 'org-expiry)
+
+(defun dfs-insert-created-timestamp (_)
+  "Insert a 'Created' property for every todo that is created"
+  (org-expiry-insert-created)
+  (org-back-to-heading)
+  (org-end-of-line)
+  (evil-insert 1))
+
+(defun dfs/insert-id (_)
+  "Insert an 'ID' property for every todo that is created"
+  (org-id-get-create)
+  (org-back-to-heading)
+  (org-end-of-line)
+  (evil-insert 1))
+
+
+(defun dfs/org-setup ()
     (require 'org-id)
     (require 'org-expiry)
+    (advice-add 'org-insert-todo-heading :after #'dfs/insert-created-timestamp)
+    (advice-add 'org-insert-todo-heading :after #'dfs/insert-id)
 
-    (defun dfs-insert-created-timestamp (_)
-        "Insert a 'Created' property for every todo that is created"
-        (org-expiry-insert-created)
-        (org-back-to-heading)
-        (org-end-of-line)
-        (evil-insert 1))
+    (setq org-treat-insert-todo-heading-as-state-change t)
+    (setq org-agenda-files '("~/work_org" "~/org"))
+    (setq org-todo-keywords dfs/org-keywords)
 
-    (defun dfs/insert-id (_)
-        "Insert an 'ID' property for every todo that is created"
-        (org-id-get-create)
-        (org-back-to-heading)
-        (org-end-of-line)
-        (evil-insert 1))
+    (setq org-capture-templates
+            (append
+             dfs/org-capture-templates
+             org-capture-templates
+             dfs/org-protocol-capture-templates))
 
-    (defun dfs/org-setup ()
-        (require 'org-id)
-        (require 'org-expiry)
-        (advice-add 'org-insert-todo-heading :after #'dfs/insert-created-timestamp)
-        (advice-add 'org-insert-todo-heading :after #'dfs/insert-id)
-        (setq org-treat-insert-todo-heading-as-state-change t)
-        (setq org-agenda-files '("~/work_org" "~/org"))
-        (setq org-todo-keywords
-                '((sequence "TODO(t!)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)" "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
-                (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
-                (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
-        (setq org-capture-templates
-                (append
-                '(("w" "Chuck Walk" table-line
-                    (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
-                    "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
-                  ("b" "Best" entry
-                    (file+headline "~/org/scratch.org" "Heading 1.1")
-                    "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")"))
-                org-capture-templates))
-        (setq org-log-into-drawer t)
-        (setq org-agenda-follow-mode t)
-        (setq org-roam-directory "~/org-roam")
-        (setq org-directory "~/org")
-        (org-bullets-mode 1)
-        (org-babel-do-load-languages
-        'org-babel-load-languages
-        '((emacs-lisp . t)
-          (sqlite . t))))
+    (setq org-log-into-drawer t)
+    (setq org-agenda-follow-mode t)
+    (setq org-roam-directory "~/org-roam")
+    (setq org-directory "~/org")
+    (org-bullets-mode 1)
+    (org-babel-do-load-languages 'org-babel-load-languages
+                                '((emacs-lisp . t)
+                                (sqlite . t))))
 
-    (after! org
-        (dfs/org-setup))
+(after! org
+  (dfs/org-setup))
 
-    (add-hook 'org-agenda-mode-hook #'dfs/org-setup)
-    (add-hook 'org-mode-hook #'dfs/org-setup)
+;; (add-hook 'org-agenda-mode-hook #'dfs/org-setup)
+;; (add-hook 'org-mode-hook #'dfs/org-setup)
 
     (require 'ox-json)
 
@@ -111,16 +133,15 @@
             (-map #'dfs/file-or-dir-files)
             -flatten
             (-filter (lambda (x) x))
-            (-remove (lambda (s) (string-match-p "/\.git" s)))
-            ))
+            (-remove (lambda (s) (string-match-p "/\.git" s)))))
 
     (defun dfs/file-or-dir-files (name)
         (if (file-directory-p name)
             (directory-files-recursively name ".*\.org")
             (if (and (file-exists-p name)
-                    (string-match-p ".*\.org" name))
-                name
-            nil)))
+                     (string-match-p ".*\.org" name))
+              name
+              nil)))
 
     (defun dfs/org-file-to-elements (name)
         (with-temp-buffer
@@ -193,3 +214,13 @@
             (goto-char (+ 1 start))
             (org-table-analyze)
             (dfs/org-table-fields))))
+
+(map! :leader (:prefix ("k" . "parens conveniens")
+                :desc "kill sexp" "k" #'kill-sexp
+                :desc "wrap sexp" "w" #'sp-wrap-round
+                :desc "barf" "b" #'sp-forward-barf-sexp
+                :desc "slurp" "s" #'sp-forward-slurp-sexp
+                :desc "raise" "r" #'sp-raise-sexp))
+
+(map! "s-k" #'dfs/bump-line-up
+      "s-j" #'dfs/bump-line-down)

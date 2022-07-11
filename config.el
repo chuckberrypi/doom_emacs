@@ -39,14 +39,14 @@
 (require 'org-id)
 (require 'org-expiry)
 
-(defun dfs-insert-created-timestamp (_)
+(defun dfs/insert-created-timestamp ()
   "Insert a 'Created' property for every todo that is created"
   (org-expiry-insert-created)
   (org-back-to-heading)
   (org-end-of-line)
   (evil-insert 1))
 
-(defun dfs/insert-id (_)
+(defun dfs/insert-id ()
   "Insert an 'ID' property for every todo that is created"
   (org-id-get-create)
   (org-back-to-heading)
@@ -80,8 +80,7 @@
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
-     (sqlite . t)
-     )))
+     (sqlite . t))))
 
 (add-hook 'org-agenda-mode-hook #'dfs/org-setup)
 (add-hook 'org-mode-hook #'dfs/org-setup)

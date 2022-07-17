@@ -236,7 +236,27 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 
 #+end_src
 
+** HOOKS
+*** org-after-todo-state-change-hook
+:LOGBOOK:
+- State "KILL"       from "TODO"       [2022-07-16 Sat 13:33]
+- State "TODO"       from              [2022-07-16 Sat 13:33]
+:END:
+#+begin_src emacs-lisp :tangle yes
+
+(defun dfs/org-after-todo-state-change-fn ()
+  (cond ((string= org-state "WAIT")
+         (org-schedule 1))))
+
+(add-hook 'org-after-todo-state-change-hook #'dfs/org-after-todo-state-change-fn)
+#+end_src
+
 ** TODO ORG EXHIBIT/TERMS TRACKER
+:PROPERTIES:
+:CREATED:  <2022-07-16 Sat 16:37>
+:END:
+:LOGBOOK:
+:END:
 
 #+begin_src emacs-lisp :tangle yes
     (defun dfs/apply-concat (list-of-lists)

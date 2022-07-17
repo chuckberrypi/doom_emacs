@@ -169,6 +169,12 @@
             vconcat
             json-serialize))
 
+(defun dfs/org-after-todo-state-change-fn ()
+  (cond ((string= org-state "WAIT")
+         (org-schedule 1))))
+
+(add-hook 'org-after-todo-state-change-hook #'dfs/org-after-todo-state-change-fn)
+
     (defun dfs/apply-concat (list-of-lists)
         (-reduce-from (lambda (acc v)
                         (append acc v))

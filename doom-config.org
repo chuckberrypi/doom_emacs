@@ -99,23 +99,8 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 #+end_src
 
 * ORG
+
 ** SETUP
-*** Org Capture Templates
-#+begin_src emacs-lisp :tangle yes
-(setq dfs/org-capture-templates
- '(("w" "Chuck Walk" table-line
-                (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
-                "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
-   ("b" "Best" entry (file+headline "~/org/scratch.org" "Heading 1.1")
-                "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")")
-   ("d" "Prot" entry (file+headline "~/org/scratch.org" "From_Protocol")
-               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?")
-   ("L" "P Link" entry (file+headline "~/org/scratch.org" "From_porot_link")
-               "** %? [[%:link][%:description]] \nCaptured On: %U")
-   ))
-
-#+end_src
-
 *** Org Todo Keywords
 #+begin_src emacs-lisp :tangle yes
 (setq dfs/org-keywords
@@ -188,6 +173,28 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 
 #+RESULTS:
 
+** Capture Templates
+#+begin_src emacs-lisp :tangle yes
+(setq dfs/org-capture-templates
+ '(("w" "Chuck Walk" table-line
+                (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
+                "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
+   ("j" "Journal Entry" entry
+    (file+olp+datetree "journal.org" )
+    "* %?" :time-prompt t)
+   ("r" "Reviews")
+   ("rm" "Movie" entry
+    (file+olp+datetree "journal.org")
+    "* %^{Title}            :movie:\n%^{Rating}p%?"
+    :time-prompt t)
+   ("b" "Best" entry (file+headline "~/org/scratch.org" "Heading 1.1")
+                "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")")
+   ("d" "Prot" entry (file+headline "~/org/scratch.org" "From_Protocol")
+               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?")
+   ("L" "P Link" entry (file+headline "~/org/scratch.org" "From_porot_link")
+               "** %? [[%:link][%:description]] \nCaptured On: %U")))
+
+#+end_src
 ** EXPOSE FUNCS
 
 #+begin_src emacs-lisp :tangle yes

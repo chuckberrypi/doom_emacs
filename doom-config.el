@@ -1,6 +1,11 @@
 (setq user-full-name "David Stearns"
       user-mail-address "d.f.stearns@gmail.com")
 
+(display-time-mode t)
+
+(unless (string-match-p "^Power N/A" (battery))
+  (display-battery-mode t))
+
 (setq doom-theme 'doom-one)
 
 (setq display-line-numbers-type t)
@@ -135,6 +140,21 @@
 
 ;; (add-hook 'org-agenda-mode-hook #'dfs/org-setup)
 ;; (add-hook 'org-mode-hook #'dfs/org-setup)
+
+(defun dfs/org-archive-all-done ()
+  (interactive)
+  (let (dones '())
+    (-> (org-element-parse-buffer)
+        (org-element-map 'headline
+            (lambda (item)
+              (when (eq (org-element-property :todo-type item) 'done)
+                (setq dones (cons item dones))))))
+    (sort dones (lambda (a b)
+                  (> (org-element-property :begin a)
+                     (org-element-property :begin b))))
+    (mapcar (lambda (el)
+              (goto-char (org-element-property :begin el))
+              (org-archive-subtree)) dones)))
 
     (require 'ox-json)
 

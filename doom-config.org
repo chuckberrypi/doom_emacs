@@ -14,6 +14,11 @@ clients, file templates and snippets.
 #+begin_src emacs-lisp :tangle yes
 (setq user-full-name "David Stearns"
       user-mail-address "d.f.stearns@gmail.com")
+
+(display-time-mode t)
+
+(unless (string-match-p "^Power N/A" (battery))
+  (display-battery-mode t))
 #+end_src
 
 Doom exposes five (optional) variables for controlling fonts in Doom. Here
@@ -26,6 +31,9 @@ are the three important ones:
 
 They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 font string. You generally only need these two:
+
+;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
+;;      doom-variable-pitch-font (font-spec :family "sans" :size 13))
 
 There are two ways to load a theme. Both assume the theme is installed and
 available. You can either set `doom-theme' or manually load a theme with the
@@ -119,7 +127,8 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 
 * ORG
 
-** Capture Templates
+** SETUP
+*** Capture Templates
 #+begin_src emacs-lisp :tangle yes
 (setq dfs/org-capture-templates
  '(("w" "Chuck Walk" table-line
@@ -144,7 +153,6 @@ numbers are disabled. For relative line numbers, set this to `relative'.
                "** %? [[%:link][%:description]] \nCaptured On: %U")))
 
 #+end_src
-** SETUP
 *** Org Todo Keywords
 #+begin_src emacs-lisp :tangle yes
 (setq dfs/org-keywords
@@ -217,8 +225,24 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 
 #+RESULTS:
 
+** CLEANUP Funcs
+#+begin_src emacs-lisp :tangle yes
+(defun dfs/org-archive-all-done ()
+  (interactive)
+  (let (dones '())
+    (-> (org-element-parse-buffer)
+        (org-element-map 'headline
+            (lambda (item)
+              (when (eq (org-element-property :todo-type item) 'done)
+                (setq dones (cons item dones))))))
+    (sort dones (lambda (a b)
+                  (> (org-element-property :begin a)
+                     (org-element-property :begin b))))
+    (mapcar (lambda (el)
+              (goto-char (org-element-property :begin el))
+              (org-archive-subtree)) dones)))
+#+end_src
 ** EXPOSE FUNCS
-
 #+begin_src emacs-lisp :tangle yes
     (require 'ox-json)
 

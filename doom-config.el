@@ -54,6 +54,28 @@
       (setq mnimum (+ mnimum step)))
     (reverse l)))
 
+(setq dfs/org-capture-templates
+ '(("w" "Chuck Walk" table-line
+                (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
+                "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
+   ("j" "Journal Entry" entry
+    (file+olp+datetree "journal.org" )
+    "* %?"
+    :time-prompt t)
+   ("r" "Reviews")
+   ("rg" "Generic Review" entry (file+olp+datetree "journal.org")
+    "* %^{Title} %^g\n%^{Rating}p %?"
+    :time-prompt t)
+   ("rm" "Movie" entry (file+olp+datetree "journal.org")
+    "* %^{Title} :movie:\n%^{Rating}p%?"
+    :time-prompt t)
+   ("b" "Best" entry (file+headline "~/org/scratch.org" "Heading 1.1")
+    "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")")
+   ("d" "Protocol" entry (file+headline "~/org/scratch.org" "From_Protocol")
+               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?")
+   ("L" "Protocol Link" entry (file+headline "~/org/scratch.org" "From_porot_link")
+               "** %? [[%:link][%:description]] \nCaptured On: %U")))
+
 (setq dfs/org-keywords
   '((sequence "TODO(t!)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)"
               "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
@@ -113,25 +135,6 @@
 
 ;; (add-hook 'org-agenda-mode-hook #'dfs/org-setup)
 ;; (add-hook 'org-mode-hook #'dfs/org-setup)
-
-(setq dfs/org-capture-templates
- '(("w" "Chuck Walk" table-line
-                (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
-                "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
-   ("j" "Journal Entry" entry
-    (file+olp+datetree "journal.org")
-    "* Test %?")
-   ("r" "Reviews")
-   ("rm" "Movie" plain
-    (file+olp+datetree "journal.org")
-    "**** %^{Title}            :movie:\n%^{Rating}p%?"
-    :time-prompt t)
-   ("b" "Best" entry (file+headline "~/org/scratch.org" "Heading 1.1")
-                "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")")
-   ("d" "Prot" entry (file+headline "~/org/scratch.org" "From_Protocol")
-               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?")
-   ("L" "P Link" entry (file+headline "~/org/scratch.org" "From_porot_link")
-               "** %? [[%:link][%:description]] \nCaptured On: %U")))
 
     (require 'ox-json)
 

@@ -2,6 +2,12 @@
 
 * DOOM TEMPLATE
 
+Place your private configuration here! Remember, you do not need to run 'doom
+sync' after modifying this file!
+
+If you use `org' and don't want your org files in the default location below,
+change `org-directory'. It must be set before org loads!
+
 Some functionality uses this to identify you, e.g. GPG configuration, email
 clients, file templates and snippets.
 
@@ -21,13 +27,26 @@ are the three important ones:
 They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 font string. You generally only need these two:
 
-vvvv the following code fucks things up
-;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
-;;      doom-variable-pitch-font (font-spec :family "sans" :size 13))
-
 There are two ways to load a theme. Both assume the theme is installed and
 available. You can either set `doom-theme' or manually load a theme with the
 `load-theme' function. This is the default:
+
+;; Here are some additional functions/macros that could help you configure Doom:
+;;
+;; - `load!' for loading external *.el files relative to this one
+;; - `use-package!' for configuring packages
+;; - `after!' for running code after a package has loaded
+;; - `add-load-path!' for adding directories to the `load-path', relative to
+;;   this file. Emacs searches the `load-path' when you load packages with
+;;   `require' or `use-package'.
+;; - `map!' for binding new keys
+;;
+;; To get information about any of these functions/macros, move the cursor over
+;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
+;; This will open documentation for it, including demos of how they are used.
+;;
+;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
+;; they are implemented.
 
 #+begin_src emacs-lisp :tangle yes
 (setq doom-theme 'doom-one)
@@ -100,6 +119,31 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 
 * ORG
 
+** Capture Templates
+#+begin_src emacs-lisp :tangle yes
+(setq dfs/org-capture-templates
+ '(("w" "Chuck Walk" table-line
+                (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
+                "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
+   ("j" "Journal Entry" entry
+    (file+olp+datetree "journal.org" )
+    "* %?"
+    :time-prompt t)
+   ("r" "Reviews")
+   ("rg" "Generic Review" entry (file+olp+datetree "journal.org")
+    "* %^{Title} %^g\n%^{Rating}p %?"
+    :time-prompt t)
+   ("rm" "Movie" entry (file+olp+datetree "journal.org")
+    "* %^{Title} :movie:\n%^{Rating}p%?"
+    :time-prompt t)
+   ("b" "Best" entry (file+headline "~/org/scratch.org" "Heading 1.1")
+    "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")")
+   ("d" "Protocol" entry (file+headline "~/org/scratch.org" "From_Protocol")
+               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?")
+   ("L" "Protocol Link" entry (file+headline "~/org/scratch.org" "From_porot_link")
+               "** %? [[%:link][%:description]] \nCaptured On: %U")))
+
+#+end_src
 ** SETUP
 *** Org Todo Keywords
 #+begin_src emacs-lisp :tangle yes
@@ -173,28 +217,6 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 
 #+RESULTS:
 
-** Capture Templates
-#+begin_src emacs-lisp :tangle yes
-(setq dfs/org-capture-templates
- '(("w" "Chuck Walk" table-line
-                (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
-                "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
-   ("j" "Journal Entry" entry
-    (file+olp+datetree "journal.org" )
-    "* %?" :time-prompt t)
-   ("r" "Reviews")
-   ("rm" "Movie" entry
-    (file+olp+datetree "journal.org")
-    "* %^{Title}            :movie:\n%^{Rating}p%?"
-    :time-prompt t)
-   ("b" "Best" entry (file+headline "~/org/scratch.org" "Heading 1.1")
-                "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")")
-   ("d" "Prot" entry (file+headline "~/org/scratch.org" "From_Protocol")
-               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?")
-   ("L" "P Link" entry (file+headline "~/org/scratch.org" "From_porot_link")
-               "** %? [[%:link][%:description]] \nCaptured On: %U")))
-
-#+end_src
 ** EXPOSE FUNCS
 
 #+begin_src emacs-lisp :tangle yes

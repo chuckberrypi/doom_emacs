@@ -103,13 +103,25 @@ numbers are disabled. For relative line numbers, set this to `relative'.
     (newline)
     (forward-line -1)
     (forward-char cur-pos-line)))
+
+(defun dfs/add-todo-comment ()
+  "Adds a TODO Comment on the next line"
+  (interactive)
+  (move-end-of-line nil)
+  (newline)
+  (indent-for-tab-command)
+  (insert "TODO: ")
+  (back-to-indentation)
+  (set-mark-command nil)
+  (move-end-of-line nil)
+  (comment-dwim nil)
+  (evil-insert-state))
+
 #+end_src
 ** Utility Funcs
 #+begin_src emacs-lisp :tangle yes
 
-(defun dfs/org-new-linked-file ()
-  (interactive)
-  )
+
 
 (defun dfs/range (mx &optional mn st)
   "provides a range of numbers from 0 (or mn) up to mx by st (1)"

@@ -13,3 +13,4 @@
  ;; If there is more than one, they won't work right.
  )
  
+(put 'customize-group 'disabled nil)

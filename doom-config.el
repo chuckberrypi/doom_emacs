@@ -43,9 +43,42 @@
     (forward-line -1)
     (forward-char cur-pos-line)))
 
-(defun dfs/org-new-linked-file ()
+(defun dfs/add-todo-comment ()
+  "Adds a TODO Comment"
   (interactive)
-  )
+  (move-end-of-line nil)
+  (newline)
+  (indent-for-tab-command)
+  (insert "TODO: ")
+  (back-to-indentation)
+  (set-mark-command nil)
+  (move-end-of-line nil)
+  (comment-dwim nil)
+  (evil-insert-state))
+
+(defun dfs/create-fold-with-marks (name)
+  "Wraps the selected field with fold marks"
+  (interactive "sFold Name: ")
+  (save-excursion
+    (let ((region-first (region-beginning))
+         (region-last (region-end)))
+
+     ;; Add the marks at the end
+     (goto-char region-last)
+     (newline)
+     (push-mark)
+     (insert "}}}")
+     (comment-dwim nil)
+
+     ;; Add marks at the beginning
+     (goto-char region-first)
+     (forward-line -1)
+     (newline)
+     (push-mark (line-beginning-position))
+     (goto-char (line-beginning-position))
+     (insert (format "%s {{{" name))
+     (comment-dwim nil)
+     (vimish-fold-from-marks))))
 
 (defun dfs/range (mx &optional mn st)
   "provides a range of numbers from 0 (or mn) up to mx by st (1)"
@@ -251,12 +284,18 @@
             (org-table-analyze)
             (dfs/org-table-fields))))
 
-(map! :leader (:prefix ("k" . "parens conveniens")
-                :desc "kill sexp" "k" #'kill-sexp
-                :desc "wrap sexp" "w" #'sp-wrap-round
-                :desc "barf" "b" #'sp-forward-barf-sexp
-                :desc "slurp" "s" #'sp-forward-slurp-sexp
-                :desc "raise" "r" #'sp-raise-sexp))
+(map! :leader
+      (:prefix ("k" . "parens conveniens")
+       :desc "kill sexp" "k" #'kill-sexp
+       :desc "wrap sexp" "w" #'sp-wrap-round
+       :desc "barf" "b" #'sp-forward-barf-sexp
+       :desc "slurp" "s" #'sp-forward-slurp-sexp
+       :desc "raise" "r" #'sp-raise-sexp))
+
+(map! :leader
+      (:prefix ("d" . "dfs")
+       :desc "add-todo-comment" "t" #'dfs/add-todo-comment
+       :desc "create named fold from region" "f" #'dfs/create-fold-with-marks))
 
 (map! "s-k" #'dfs/bump-line-up
       "s-j" #'dfs/bump-line-down)

@@ -10,17 +10,18 @@
 ;(package! some-package)
 
 ;;(package! mu4e)
-(package! org-roam)
-(package! org-noter)
-(package! pdf-tools)
-(package! smerge-mode)
-(package! org-transclusion)
-(package! yasnippet)
-(package! org-super-agenda)
+(package! list-processes+)
 (package! org-bullets)
-(package! ox-json)
-(package! s)
 (package! org-drill)
+(package! org-noter)
+(package! org-roam)
+(package! org-super-agenda)
+(package! org-transclusion)
+(package! ox-json)
+(package! pdf-tools)
+(package! s)
+(package! smerge-mode)
+(package! yasnippet)
 
 ;; To install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:

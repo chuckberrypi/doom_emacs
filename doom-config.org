@@ -117,31 +117,31 @@ numbers are disabled. For relative line numbers, set this to `relative'.
   (comment-dwim nil)
   (evil-insert-state))
 
-(defun dfs/create-fold-with-marks (name)
-  "Wraps the selected field with fold marks"
-  (interactive "sFold Name: ")
-  (save-excursion
-    (let ((region-first (region-beginning))
-          (region-last (region-end)))
+;; (defun dfs/create-fold-with-marks (name)
+;;   "Wraps the selected field with fold marks"
+;;   (interactive "sFold Name: ")
+;;   (save-excursion
+;;     (let ((region-first (region-beginning))
+;;           (region-last (region-end)))
 
-      ;; Add the marks at the end
-      (goto-char region-last)
-      (newline)
-      (push-mark)
-      (insert (format "%s" (cdr vimish-fold-marks)))
-      (comment-dwim nil)
+;;       ;; Add the marks at the end
+;;       (goto-char region-last)
+;;       (newline)
+;;       (push-mark)
+;;       (insert (format "%s" (cdr vimish-fold-marks)))
+;;       (comment-dwim nil)
 
-      ;; Add marks at the beginning
-      (goto-char region-first)
-      (forward-line -1)
-      (newline)
-      (push-mark (line-beginning-position))
-      (goto-char (line-beginning-position))
-      (insert (format "%s %s" name (car vimish-fold-marks)))
-      (comment-dwim nil)
-      (vimish-fold-from-marks))))
+;;       ;; Add marks at the beginning
+;;       (goto-char region-first)
+;;       (forward-line -1)
+;;       (newline)
+;;       (push-mark (line-beginning-position))
+;;       (goto-char (line-beginning-position))
+;;       (insert (format "%s %s" name (car vimish-fold-marks)))
+;;       (comment-dwim nil)
+;;       (vimish-fold-from-marks))))
 
-(format "%s" (cdr vimish-fold-marks))
+;; (format "%s" (cdr vimish-fold-marks))
 
 #+end_src
 ** Utility Funcs
@@ -164,6 +164,15 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 * ORG
 
 ** SETUP
+*** Custom Agenda Views
+#+begin_src emacs-lisp :tangle yes
+;; (setq org-agenda-custom-commands
+;;       (("n" "Agenda and all TODOs"
+;;         ((agenda "")
+;;          (alltodo "")))
+;;        ("c" "All TODOs by Category (source file)"
+;;         ((agenda "")))))
+#+end_src
 *** Capture Templates
 #+begin_src emacs-lisp :tangle yes
 (setq dfs/org-capture-templates
@@ -181,12 +190,14 @@ numbers are disabled. For relative line numbers, set this to `relative'.
    ("rm" "Movie" entry (file+olp+datetree "journal.org")
     "* %^{Title} :movie:\n%^{Rating}p%?"
     :time-prompt t)
-   ("b" "Best" entry (file+headline "~/org/scratch.org" "Heading 1.1")
-    "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")")
    ("d" "Protocol" entry (file+headline "~/org/scratch.org" "From_Protocol")
-               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?")
+               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?"
+             ;;  :immediate-finish t
+               )
    ("L" "Protocol Link" entry (file+headline "~/org/scratch.org" "From_porot_link")
-               "** %? [[%:link][%:description]] \nCaptured On: %U")))
+               "** %? [[%:link][%:description]] \nCaptured On: %U"
+              ;; :immediate-finish t
+               )))
 
 #+end_src
 *** Org Todo Keywords
@@ -199,11 +210,40 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 
 #+end_src
 *** Org protocol
+org protocol handlers
+
 #+begin_src emacs-lisp :tangle yes
+;;(setq dfs/deadline-pairs (list
+;;                          (:a . file)
+;;                          (:b . file2)
+;;                          (:c . file3)))
+;;(setq dfs/deadline-search-terms (make-hash-table :size 20))
+;;(clrhash dfs/deadline-search-terms)
+;;(dolist (p dfs/deadline-pairs)
+;;  (puthash (car p) (cdr p) dfs/deadline-search-terms))
+;;(hash-table-keys dfs/deadline-search-terms)
+;;(gethash :a dfs/deadline-search-terms)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(defun dfs-org-protocol-email-munch (query)
+  (setq dfs/org-protocol-query query)
+  (org-capture nil "e"))
+
 (setq dfs/org-protocol-capture-templates
       '(("e" "Email Capture" entry (id "89f73e32-77ec-4052-94aa-22753c0c5a27")
-         "** EMAIL harharhar %U"
+         "** EMAIL %(plist-get dfs/org-protocol-query :title) harharhar %(plist-get dfs/org-protocol-query :sched) %U"
          :immediate-finish t)))
+
+(unless (boundp 'org-protocol-protocol-alist)
+  (setq org-protocol-protocol-alist '()))
+
+(add-to-list 'org-protocol-protocol-alist
+             '("email handler"
+               :protocol "email-munch"
+               :function dfs-org-protocol-email-munch))
+
+                                        ;(dfs-org-protocol-email-munch "abcitt")
 #+end_src
 
 *** Todo Setup Funcs
@@ -412,4 +452,9 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 
 (map! "s-k" #'dfs/bump-line-up
       "s-j" #'dfs/bump-line-down)
+
+#+end_src
+* FILE TEMPLATES
+#+begin_src emacs-lisp :tangle yes
+;;(set-file-template! "/work_org/.+\.org" :trigger "__work-proj.org" :mode 'org-mode)
 #+end_src

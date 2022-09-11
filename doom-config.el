@@ -56,29 +56,31 @@
   (comment-dwim nil)
   (evil-insert-state))
 
-(defun dfs/create-fold-with-marks (name)
-  "Wraps the selected field with fold marks"
-  (interactive "sFold Name: ")
-  (save-excursion
-    (let ((region-first (region-beginning))
-         (region-last (region-end)))
+;; (defun dfs/create-fold-with-marks (name)
+;;   "Wraps the selected field with fold marks"
+;;   (interactive "sFold Name: ")
+;;   (save-excursion
+;;     (let ((region-first (region-beginning))
+;;           (region-last (region-end)))
 
-     ;; Add the marks at the end
-     (goto-char region-last)
-     (newline)
-     (push-mark)
-     (insert "}}}")
-     (comment-dwim nil)
+;;       ;; Add the marks at the end
+;;       (goto-char region-last)
+;;       (newline)
+;;       (push-mark)
+;;       (insert (format "%s" (cdr vimish-fold-marks)))
+;;       (comment-dwim nil)
 
-     ;; Add marks at the beginning
-     (goto-char region-first)
-     (forward-line -1)
-     (newline)
-     (push-mark (line-beginning-position))
-     (goto-char (line-beginning-position))
-     (insert (format "%s {{{" name))
-     (comment-dwim nil)
-     (vimish-fold-from-marks))))
+;;       ;; Add marks at the beginning
+;;       (goto-char region-first)
+;;       (forward-line -1)
+;;       (newline)
+;;       (push-mark (line-beginning-position))
+;;       (goto-char (line-beginning-position))
+;;       (insert (format "%s %s" name (car vimish-fold-marks)))
+;;       (comment-dwim nil)
+;;       (vimish-fold-from-marks))))
+
+;; (format "%s" (cdr vimish-fold-marks))
 
 (defun dfs/range (mx &optional mn st)
   "provides a range of numbers from 0 (or mn) up to mx by st (1)"
@@ -91,6 +93,13 @@
       (setq l (cons mnimum l))
       (setq mnimum (+ mnimum step)))
     (reverse l)))
+
+;; (setq org-agenda-custom-commands
+;;       (("n" "Agenda and all TODOs"
+;;         ((agenda "")
+;;          (alltodo "")))
+;;        ("c" "All TODOs by Category (source file)"
+;;         ((agenda "")))))
 
 (setq dfs/org-capture-templates
  '(("w" "Chuck Walk" table-line
@@ -107,12 +116,14 @@
    ("rm" "Movie" entry (file+olp+datetree "journal.org")
     "* %^{Title} :movie:\n%^{Rating}p%?"
     :time-prompt t)
-   ("b" "Best" entry (file+headline "~/org/scratch.org" "Heading 1.1")
-    "** TODO %(s-concat \"%^{\" (s-join \"|\" '(\"Pick Animal: \" \"cat\" \"bat\" \"rat\")) \"}\")")
    ("d" "Protocol" entry (file+headline "~/org/scratch.org" "From_Protocol")
-               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?")
+               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?"
+             ;;  :immediate-finish t
+               )
    ("L" "Protocol Link" entry (file+headline "~/org/scratch.org" "From_porot_link")
-               "** %? [[%:link][%:description]] \nCaptured On: %U")))
+               "** %? [[%:link][%:description]] \nCaptured On: %U"
+              ;; :immediate-finish t
+               )))
 
 (setq dfs/org-keywords
   '((sequence "TODO(t!)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)"
@@ -120,10 +131,35 @@
     (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
     (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
 
+;;(setq dfs/deadline-pairs (list
+;;                          (:a . file)
+;;                          (:b . file2)
+;;                          (:c . file3)))
+;;(setq dfs/deadline-search-terms (make-hash-table :size 20))
+;;(clrhash dfs/deadline-search-terms)
+;;(dolist (p dfs/deadline-pairs)
+;;  (puthash (car p) (cdr p) dfs/deadline-search-terms))
+;;(hash-table-keys dfs/deadline-search-terms)
+;;(gethash :a dfs/deadline-search-terms)
+
+(defun dfs-org-protocol-email-munch (query)
+  (setq dfs/org-protocol-query query)
+  (org-capture nil "e"))
+
 (setq dfs/org-protocol-capture-templates
       '(("e" "Email Capture" entry (id "89f73e32-77ec-4052-94aa-22753c0c5a27")
-         "** EMAIL harharhar %U"
+         "** EMAIL %(plist-get dfs/org-protocol-query :title) harharhar %(plist-get dfs/org-protocol-query :sched) %U"
          :immediate-finish t)))
+
+(unless (boundp 'org-protocol-protocol-alist)
+  (setq org-protocol-protocol-alist '()))
+
+(add-to-list 'org-protocol-protocol-alist
+             '("email handler"
+               :protocol "email-munch"
+               :function dfs-org-protocol-email-munch))
+
+                                        ;(dfs-org-protocol-email-munch "abcitt")
 
 (require 'org-id)
 (require 'org-expiry)
@@ -299,3 +335,5 @@
 
 (map! "s-k" #'dfs/bump-line-up
       "s-j" #'dfs/bump-line-down)
+
+;;(set-file-template! "/work_org/.+\.org" :trigger "__work-proj.org" :mode 'org-mode)

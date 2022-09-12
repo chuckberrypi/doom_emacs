@@ -456,5 +456,5 @@ org protocol handlers
 #+end_src
 * FILE TEMPLATES
 #+begin_src emacs-lisp :tangle yes
-;;(set-file-template! "/work_org/.+\.org" :trigger "__work-proj.org" :mode 'org-mode)
+(set-file-template! "/work_org/.+\\.org$" :trigger "__new-work" :mode 'org-mode)
 #+end_src

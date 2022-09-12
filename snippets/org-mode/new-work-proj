@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: new-work-proj
+# key: __new-work
+# --
+#+title:${1:Project Name}
+#+client_name: ${2:Client name}
+#+client_no: ${3:Client number}
+#+matter_no: ${4:matter number}
+#+date:    `(format-time-string "%Y-%m-%d")`
+
+* Tasks [/]
+** TODO $0
+* People
+* Notes

@@ -2,7 +2,7 @@
 # name: new-work-proj
 # key: __new-work
 # --
-#+title:${1:Project Name}
+#+title:${1:`(-> (buffer-file-name) file-name-sans-extension file-name-nondirectory)`}
 #+client_name: ${2:Client name}
 #+client_no: ${3:Client number}
 #+matter_no: ${4:matter number}

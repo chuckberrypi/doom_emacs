@@ -10,6 +10,7 @@
 ;(package! some-package)
 
 ;;(package! mu4e)
+(package! auto-overlays)
 (package! list-processes+)
 (package! org-bullets)
 (package! org-drill)

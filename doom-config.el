@@ -10,6 +10,8 @@
 
 (setq display-line-numbers-type t)
 
+(setq racket-program "/Applications/Racket v8.6/bin/racket")
+
 (use-package! org-transclusion
   :after org
   :init
@@ -336,4 +338,8 @@
 (map! "s-k" #'dfs/bump-line-up
       "s-j" #'dfs/bump-line-down)
 
-;;(set-file-template! "/work_org/.+\.org" :trigger "__work-proj.org" :mode 'org-mode)
+(set-file-template! "/work_org/.+\\.org$" :trigger "__new-work" :mode 'org-mode)
+
+
+
+(load "~/.hammerspoon/Spoons/editWithEmacs.spoon/hammerspoon.el")

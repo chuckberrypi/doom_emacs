@@ -504,5 +504,6 @@ org protocol handlers
 #+end_src
 * Hammerspoon
 #+begin_src emacs-lisp :tangle yes
-(load "~/.hammerspoon/Spoons/editWithEmacs.spoon/hammerspoon.el")
+(if (eq system-type 'darwin)
+    (load "~/.hammerspoon/Spoons/editWithEmacs.spoon/hammerspoon.el"))
 #+end_src

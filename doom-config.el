@@ -374,4 +374,5 @@
 
 
 
-(load "~/.hammerspoon/Spoons/editWithEmacs.spoon/hammerspoon.el")
+(if (eq system-type 'darwin)
+    (load "~/.hammerspoon/Spoons/editWithEmacs.spoon/hammerspoon.el"))

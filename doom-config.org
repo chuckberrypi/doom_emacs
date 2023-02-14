@@ -1,5 +1,4 @@
 #+TITLE: Doom Config
-
 * DOOM TEMPLATE
 
 Place your private configuration here! Remember, you do not need to run 'doom
@@ -23,6 +22,7 @@ clients, file templates and snippets.
 
 Doom exposes five (optional) variables for controlling fonts in Doom. Here
 are the three important ones:
+
 
 + `doom-font'
 + `doom-variable-pitch-font'
@@ -65,6 +65,7 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 #+begin_src emacs-lisp :tangle yes
 (setq display-line-numbers-type t)
 #+end_src
+
 * CUSTOM VARIABLES
 
 #+begin_src emacs-lisp :tangle yes
@@ -72,15 +73,63 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 #+end_src
 
 * PACKAGE CONFIGURATIONS
+** TODO make this work
 #+begin_src emacs-lisp :tangle yes
-(use-package! org-transclusion
-  :after org
-  :init
-  (map!
-   :map global-map "<f12>" #'org-transclusion-add
-   :leader
-   :prefix "n"
-   :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
+;; (use-package! org-transclusion
+;;   :after org
+;;   :init
+;;   (map!
+;;    :map global-map "<f12>" #'org-transclusion-add
+;;    :leader
+;;    :prefix "n"
+;;    :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
+#+end_src
+*** F-Sharp Config
+#+begin_src emacs-lisp :tangle yes
+
+(with-eval-after-load 'fsharp-mode
+  (add-hook 'fsharp-mode-hook #'origami-mode))
+
+(add-to-list 'evil-fold-list
+             '((fsharp-mode)
+               :close (lambda ()
+                        (origami-close-node (current-buffer) (point)))
+               :open (lambda ()
+                       (origami-open-node (current-buffer) (point)))
+               :toggle (lambda ()
+                         (origami-toggle-node (current-buffer) (point)))))
+
+;; (defun cfg-outline-indent-level ()
+;;   "determine outline level based on indentation"
+;;   (let (buffer-invisibility-spec)
+;;     (save-excursion
+;;       (beginning-of-line)
+;;       (skip-chars-forward " ")
+;;       (+ 1 (current-column)))))
+
+;; (defun cfg-fsharp-enable-folding ()
+;;   "enables folding for fsharp"
+;;   (setq-local outline-regexp "^ *\\(\\w\\|/\\)")
+;;   (setq-local outline-level #'cfg-outline-indent-level)
+;;   (outline-minor-mode 1))
+
+;; (defun cfg-fsharp ()
+;;   "Configure fsharp environment"
+;;   (with-eval-after-load 'fsharp-mode
+;;     (add-hook 'fsharp-mode-hook #'cfg-fsharp-enable-folding)))
+
+;; (defun cfg-outline ()
+;;   "Optional - Configure evil-fold for outline-minor-mode"
+;;   (add-to-list 'evil-fold-list '((outline-minor-mode)
+;;                                  :open-all   outline-show-all
+;;                                  :close-all  (lambda () (call-interactively 'outline-hide-sublevels))
+;;                                  :toggle     outline-toggle-children
+;;                                  :open       outline-show-children
+;;                                  :open-rec   nil
+;;                                  :close      outline-hide-subtree)))
+
+;; (cfg-fsharp)
+;; (cfg-outline)
 #+end_src
 * CUSTOM FUNCS
 ** Text Funcs
@@ -149,25 +198,8 @@ numbers are disabled. For relative line numbers, set this to `relative'.
 ;; (format "%s" (cdr vimish-fold-marks))
 
 #+end_src
-** Utility Funcs
-#+begin_src emacs-lisp :tangle yes
-
-(defun dfs/range (mx &optional mn st)
-  "provides a range of numbers from 0 (or mn) up to mx by st (1)"
-  (let* ((l nil)
-         (mini (or mn 0))
-         (step (or st 1))
-         (mximum (max mx mini))
-         (mnimum (min mx mini)))
-    (while (< mnimum mximum)
-      (setq l (cons mnimum l))
-      (setq mnimum (+ mnimum step)))
-    (reverse l)))
-
-#+end_src
 
 * ORG
-
 ** SETUP
 *** Custom Agenda Views
 #+begin_src emacs-lisp :tangle yes

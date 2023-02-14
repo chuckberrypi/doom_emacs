@@ -12,14 +12,58 @@
 
 (setq racket-program "/Applications/Racket v8.6/bin/racket")
 
-(use-package! org-transclusion
-  :after org
-  :init
-  (map!
-   :map global-map "<f12>" #'org-transclusion-add
-   :leader
-   :prefix "n"
-   :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
+;; (use-package! org-transclusion
+;;   :after org
+;;   :init
+;;   (map!
+;;    :map global-map "<f12>" #'org-transclusion-add
+;;    :leader
+;;    :prefix "n"
+;;    :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
+
+(with-eval-after-load 'fsharp-mode
+  (add-hook 'fsharp-mode-hook #'origami-mode))
+
+(add-to-list 'evil-fold-list
+             '((fsharp-mode)
+               :close (lambda ()
+                        (origami-close-node (current-buffer) (point)))
+               :open (lambda ()
+                       (origami-open-node (current-buffer) (point)))
+               :toggle (lambda ()
+                         (origami-toggle-node (current-buffer) (point)))))
+
+;; (defun cfg-outline-indent-level ()
+;;   "determine outline level based on indentation"
+;;   (let (buffer-invisibility-spec)
+;;     (save-excursion
+;;       (beginning-of-line)
+;;       (skip-chars-forward " ")
+;;       (+ 1 (current-column)))))
+
+;; (defun cfg-fsharp-enable-folding ()
+;;   "enables folding for fsharp"
+;;   (setq-local outline-regexp "^ *\\(\\w\\|/\\)")
+;;   (setq-local outline-level #'cfg-outline-indent-level)
+;;   (outline-minor-mode 1))
+
+;; (defun cfg-fsharp ()
+;;   "Configure fsharp environment"
+;;   (with-eval-after-load 'fsharp-mode
+;;     (add-hook 'fsharp-mode-hook #'cfg-fsharp-enable-folding)))
+
+;; (defun cfg-outline ()
+;;   "Optional - Configure evil-fold for outline-minor-mode"
+;;   (add-to-list 'evil-fold-list '((outline-minor-mode)
+;;                                  :open-all   outline-show-all
+;;                                  :close-all  (lambda () (call-interactively 'outline-hide-sublevels))
+;;                                  :toggle     outline-toggle-children
+;;                                  :open       outline-show-children
+;;                                  :open-rec   nil
+;;                                  :close      outline-hide-subtree)))
+
+;; (cfg-fsharp)
+;; (cfg-outline)
 
 (defun dfs/bump-line-up ()
   (interactive)
@@ -83,18 +127,6 @@
 ;;       (vimish-fold-from-marks))))
 
 ;; (format "%s" (cdr vimish-fold-marks))
-
-(defun dfs/range (mx &optional mn st)
-  "provides a range of numbers from 0 (or mn) up to mx by st (1)"
-  (let* ((l nil)
-         (mini (or mn 0))
-         (step (or st 1))
-         (mximum (max mx mini))
-         (mnimum (min mx mini)))
-    (while (< mnimum mximum)
-      (setq l (cons mnimum l))
-      (setq mnimum (+ mnimum step)))
-    (reverse l)))
 
 ;; (setq org-agenda-custom-commands
 ;;       (("n" "Agenda and all TODOs"

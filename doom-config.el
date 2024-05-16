@@ -65,6 +65,25 @@
 ;; (cfg-fsharp)
 ;; (cfg-outline)
 
+(setq hass-host "prjwk6i94rtc5eajnaxubj04rkxhrey2.ui.nabu.casa")
+;; (setq hass-host "homeassistant.local")
+(setq hass-apikey "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI0NzRkYTQ4YzQ5MTU0OWU2OGEwNGQyMTUxMzFiOGYyMSIsImlhdCI6MTcwMDk4NTExMCwiZXhwIjoyMDE2MzQ1MTEwfQ.bF6btBTKhljRvGu4YJN199EgO7wo2eUHjtX-8-y3oQQ")
+
+(setq hass-dash-layouts
+      '((default . ((hass-dash-group
+                     :title "Lights"
+                     :format "%t\n\n%v"
+                     (hass-dash-toggle :entity-id "light.billiards")
+                     (hass-dash-toggle :entity-id "light.dining_and-hallway")
+                     (hass-dash-toggle :entity-id "light.downstairs")
+                     (hass-dash-toggle :entity-id "light.drawing_and_office")
+                     (hass-dash-toggle :entity-id "light.kitchen_area")
+                     (hass-dash-toggle :entity-id "light.main_floor")
+                     (hass-dash-toggle :entity-id "light.outside")
+                     (hass-dash-toggle :entity-id "light.stairs"))))))
+
+;; (hass-ensure)
+
 (defun dfs/bump-line-up ()
   (interactive)
   (let ((cur-pos-line (- (point) (line-beginning-position)))
@@ -128,6 +147,124 @@
 
 ;; (format "%s" (cdr vimish-fold-marks))
 
+(setq dfs/org-keywords
+  '((sequence "TODO(t!)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)"
+              "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
+    (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+    (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
+
+(require 'org-id)
+(require 'org-expiry)
+
+(defun set-org-dir ()
+  (require 'org)
+  (setq org-directory (if (eq system-type 'darwin)
+                        "~/Docs/org"
+                        "~/org")))
+
+(set-org-dir)
+
+(defun dfs-insert-created-timestamp (_)
+  "Insert a 'Created' property for every todo that is created"
+  (org-expiry-insert-created)
+  (org-back-to-heading)
+  (org-end-of-line)
+  (evil-insert 1))
+
+(defun dfs/insert-id (_)
+  "Insert an 'ID' property for every todo that is created"
+  (org-id-get-create)
+  (org-back-to-heading)
+  (org-end-of-line)
+  (evil-insert 1))
+
+(setq dfs/org-protocol-capture-templates
+      '(("e" "Email Capture" entry (id "89f73e32-77ec-4052-94aa-22753c0c5a27")
+         "** EMAIL %(plist-get dfs/org-protocol-query :title) harharhar %(plist-get dfs/org-protocol-query :sched) %U"
+         :immediate-finish t)))
+
+(setq org-browser-capture-file (if (eq system-type 'darwin)
+                           "~/Docs/org/browser-capture.org"
+                           "~/org/browser-capture.org"))
+
+(setq dfs/org-capture-templates
+      '(("c" "Cookbook")
+        ("cc" "Cookbook (from url)" entry (file "cookbook.org")
+         "%(org-chef-get-recipe-from-url)"
+         :empty-lines 1)
+        ("w" "Chuck Walk" table-line
+         (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
+         "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
+        ("j" "Journal Entry" entry
+         (file+olp+datetree "journal.org" )
+         "* %?"
+         :time-prompt t)
+        ("r" "Reviews")
+        ("rg" "Generic Review" entry (file+olp+datetree "journal.org")
+         "* %^{Title} %^g\n%^{Rating}p %?"
+         :time-prompt t)
+        ("rm" "Movie" entry (file+olp+datetree "journal.org")
+         "* %^{Title} :movie:\n%^{Rating}p%?"
+         :time-prompt t)
+        ("d" "Protocol" entry (file+headline org-browser-capture-file "Snippet")
+         "** %?[[%:link][%:description]]\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n"
+         ;;  :immediate-finish t
+         )
+        ("L" "Protocol Link" entry (file+headline org-browser-capture-file "Link")
+         "** %?[[%:link][%:description]] \nCaptured On: %U"
+         ;; :immediate-finish t
+         )))
+
+(defun dfs/org-setup ()
+  (require 'org-id)
+  (require 'org-expiry)
+  (advice-add 'org-insert-todo-heading :after #'dfs/insert-created-timestamp)
+  (advice-add 'org-insert-todo-heading :after #'dfs/insert-id)
+  (set-org-dir)
+
+
+
+  (setq org-roam-directory (if (eq system-type 'darwin)
+                               "~/Docs/org-roam"
+                             "~/org-roam"))
+
+  (defun dfs/org-file-name (name)
+    (if (stringp name)
+        (concat org-directory "/" name)
+      ""))
+
+  (setq org-treat-insert-todo-heading-as-state-change t)
+
+  (setq org-agenda-files (if (eq system-type 'darwin)
+                             '("~/Docs/work_org" "~/Docs/org")
+                           '("~/work_org" "~/org")))
+
+  (setq org-todo-keywords dfs/org-keywords)
+
+  (setq org-capture-templates
+        (append
+         dfs/org-capture-templates
+         org-capture-templates
+         dfs/org-protocol-capture-templates))
+
+  (setq org-log-into-drawer t)
+  (setq org-agenda-follow-mode t)
+
+
+  (org-bullets-mode 1)
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((emacs-lisp . t)
+                                 (sqlite . t))))
+
+(after! org
+  (dfs/org-setup)
+ (set-org-dir))
+
+(set-org-dir)
+(add-hook 'org-capture-mode-hook #'dfs/org-setup)
+(add-hook 'org-agenda-mode-hook #'dfs/org-setup)
+(add-hook 'org-mode-hook #'dfs/org-setup)
+
 ;; (setq org-agenda-custom-commands
 ;;       (("n" "Agenda and all TODOs"
 ;;         ((agenda "")
@@ -135,35 +272,7 @@
 ;;        ("c" "All TODOs by Category (source file)"
 ;;         ((agenda "")))))
 
-(setq dfs/org-capture-templates
- '(("w" "Chuck Walk" table-line
-                (id  "b42729b6-1cc1-460c-a7b5-6b0eb8a3970f")
-                "| %u | %^{Time|morning|afternoon|evening} | %^{Slowdown} | %^{Notes} |")
-   ("j" "Journal Entry" entry
-    (file+olp+datetree "journal.org" )
-    "* %?"
-    :time-prompt t)
-   ("r" "Reviews")
-   ("rg" "Generic Review" entry (file+olp+datetree "journal.org")
-    "* %^{Title} %^g\n%^{Rating}p %?"
-    :time-prompt t)
-   ("rm" "Movie" entry (file+olp+datetree "journal.org")
-    "* %^{Title} :movie:\n%^{Rating}p%?"
-    :time-prompt t)
-   ("d" "Protocol" entry (file+headline "~/org/scratch.org" "From_Protocol")
-               "** %:description \nSource: %:link\nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?"
-             ;;  :immediate-finish t
-               )
-   ("L" "Protocol Link" entry (file+headline "~/org/scratch.org" "From_porot_link")
-               "** %? [[%:link][%:description]] \nCaptured On: %U"
-              ;; :immediate-finish t
-               )))
 
-(setq dfs/org-keywords
-  '((sequence "TODO(t!)" "PROJ(p)" "LOOP(r)" "STRT(s)" "DGATE(g@/!)" "WAIT(w@/!)"
-              "HOLD(h@)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
-    (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
-    (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
 
 ;;(setq dfs/deadline-pairs (list
 ;;                          (:a . file)
@@ -180,11 +289,6 @@
   (setq dfs/org-protocol-query query)
   (org-capture nil "e"))
 
-(setq dfs/org-protocol-capture-templates
-      '(("e" "Email Capture" entry (id "89f73e32-77ec-4052-94aa-22753c0c5a27")
-         "** EMAIL %(plist-get dfs/org-protocol-query :title) harharhar %(plist-get dfs/org-protocol-query :sched) %U"
-         :immediate-finish t)))
-
 (unless (boundp 'org-protocol-protocol-alist)
   (setq org-protocol-protocol-alist '()))
 
@@ -194,55 +298,6 @@
                :function dfs-org-protocol-email-munch))
 
                                         ;(dfs-org-protocol-email-munch "abcitt")
-
-(require 'org-id)
-(require 'org-expiry)
-
-(defun dfs-insert-created-timestamp (_)
-  "Insert a 'Created' property for every todo that is created"
-  (org-expiry-insert-created)
-  (org-back-to-heading)
-  (org-end-of-line)
-  (evil-insert 1))
-
-(defun dfs/insert-id (_)
-  "Insert an 'ID' property for every todo that is created"
-  (org-id-get-create)
-  (org-back-to-heading)
-  (org-end-of-line)
-  (evil-insert 1))
-
-
-(defun dfs/org-setup ()
-    (require 'org-id)
-    (require 'org-expiry)
-    (advice-add 'org-insert-todo-heading :after #'dfs/insert-created-timestamp)
-    (advice-add 'org-insert-todo-heading :after #'dfs/insert-id)
-
-    (setq org-treat-insert-todo-heading-as-state-change t)
-    (setq org-agenda-files '("~/work_org" "~/org"))
-    (setq org-todo-keywords dfs/org-keywords)
-
-    (setq org-capture-templates
-            (append
-             dfs/org-capture-templates
-             org-capture-templates
-             dfs/org-protocol-capture-templates))
-
-    (setq org-log-into-drawer t)
-    (setq org-agenda-follow-mode t)
-    (setq org-roam-directory "~/org-roam")
-    (setq org-directory "~/org")
-    (org-bullets-mode 1)
-    (org-babel-do-load-languages 'org-babel-load-languages
-                                '((emacs-lisp . t)
-                                (sqlite . t))))
-
-(after! org
-  (dfs/org-setup))
-
-;; (add-hook 'org-agenda-mode-hook #'dfs/org-setup)
-;; (add-hook 'org-mode-hook #'dfs/org-setup)
 
 (defun dfs/org-archive-all-done ()
   (interactive)
@@ -370,9 +425,19 @@
 (map! "s-k" #'dfs/bump-line-up
       "s-j" #'dfs/bump-line-down)
 
+(add-to-list 'image-types 'svg)
+
 (set-file-template! "/work_org/.+\\.org$" :trigger "__new-work" :mode 'org-mode)
 
 
 
 (if (eq system-type 'darwin)
     (load "~/.hammerspoon/Spoons/editWithEmacs.spoon/hammerspoon.el"))
+
+(defun dfs/export-org-file-to-ahotw (f-name)
+  ;; (interactive)
+  (with-temp-buffer
+    (progn
+      (insert-file-contents f-name)
+      (org-html-export-to-html nil nil t t)))
+    )

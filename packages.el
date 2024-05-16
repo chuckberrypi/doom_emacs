@@ -6,9 +6,11 @@
 ;; use 'M-x doom/reload'.
 
 (package! auto-overlays)
+(package! hass)
 (package! list-processes+)
 (package! origami)
 (package! org-bullets)
+(package! org-chef)
 (package! org-drill)
 (package! org-noter)
 (package! org-roam)
@@ -19,6 +21,9 @@
 (package! s)
 (package! smerge-mode)
 (package! yasnippet)
+
+(use-package gleam-ts-mode
+ :load-path "~/code/gleam-mode")
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;(package! some-package)
